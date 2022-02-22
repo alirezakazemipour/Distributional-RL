@@ -92,7 +92,7 @@ class IQN:
         delta = target_z.view(target_z.size(0), 1, target_z.size(-1)) - z.unsqueeze(-1)
         hloss = huber_loss(delta, self.configs["kappa"])
         rho = torch.abs(taus[..., None] - (delta.detach() < 0).float()) * hloss / self.configs["kappa"]
-        loss = (rho * delta).sum(1).mean(1).mean()  # sum over N -> mean over N_prime -> mean over batch
+        loss = rho.sum(1).mean(1).mean()  # sum over N -> mean over N_prime -> mean over batch
 
         self.optimizer.zero_grad()
         loss.backward()

@@ -30,12 +30,12 @@ if __name__ == "__main__":
 
     if not configs["do_test"]:
         total_steps = 0
-        for episode in range(configs["max_episodes"]):
+        for episode in range(1, 1 + configs["max_episodes"]):
             logger.on()
             episode_reward = 0
             episode_loss = 0
             state = env.reset()
-            for step in range(env.spec.max_episode_steps):
+            for step in range(1, 1 + env.spec.max_episode_steps):
                 total_steps += 1
                 action = agent.choose_action(state)
                 next_state, reward, done, _ = env.step(action)
@@ -44,7 +44,7 @@ if __name__ == "__main__":
                 if total_steps % configs["train_interval"] == 0:
                     loss = agent.train()
                     episode_loss += loss
-                if total_steps % configs["target_update_freq"]:
+                if total_steps % configs["target_update_freq"] == 0:
                     agent.hard_target_update()
                 if done:
                     break

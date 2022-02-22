@@ -19,7 +19,6 @@ class Logger:
         self.duration = 0
         self.running_reward = 0
         self.running_loss = 0
-        self.running_g_norm = 0
         self.max_episode_reward = -np.inf
         self.moving_avg_window = 10
         self.moving_weights = np.repeat(1.0, self.moving_avg_window) / self.moving_avg_window
@@ -79,7 +78,7 @@ class Logger:
                   "E_Reward: {:.1f}| "
                   "E_Running_Reward: {:.2f}| "
                   "Mem_Len: {}| "
-                  "FPS: {:.2f}| "
+                  "Mean_steps_time: {:.2f}| "
                   "{:.1f}/{:.1f} GB RAM| "
                   "eps: {:.2f}| "
                   "Time: {}| "
@@ -87,7 +86,7 @@ class Logger:
                                     episode_reward,
                                     self.running_reward,
                                     len(self.agent.memory),
-                                    e_len / self.duration,
+                                    self.duration / e_len,
                                     self.to_gb(memory.used),
                                     self.to_gb(memory.total),
                                     self.agent.exp_eps,
@@ -98,7 +97,6 @@ class Logger:
         metrics = {"Running episode reward": self.running_reward,
                    "Max episode reward": self.max_episode_reward,
                    "Moving last 10 episode rewards": last_10_ep_rewards,
-                   "Running Grad Norm": self.running_g_norm,
                    "Running Loss": self.running_loss,
                    "episode": episode,
                    "episode length": e_len

@@ -9,8 +9,8 @@ def make_atari(env_name: str,
                seed: int = 123
                ):
     env = gym.make(env_name)
-    if "NoFrameskip" not in env.spec.id:
-        raise ValueError(f"env should be from `NoFrameskip` type got: {env_name}")
+    if "NoFrameskip" not in env.spec.id:  # noqa
+        raise ValueError(f"env should be from `NoFrameskip` type got: {env_name}")  # noqa
     env = NoopResetEnv(env)
     env = MaxAndSkipEnv(env)
     if episodic_life:
@@ -37,7 +37,7 @@ class NoopResetEnv(gym.Wrapper):
     def reset(self):
         self.env.reset()
 
-        noops = np.random.randint(1, self.noop_max + 1)
+        noops = np.random.randint(1, self.noop_max + 1)  # noqa
         obs = None
         for _ in range(noops):
             obs, _, done, _ = self.env.step(self.noop_action)
@@ -139,7 +139,7 @@ class ClipRewardEnv(gym.RewardWrapper, ABC):
         gym.RewardWrapper.__init__(self, env)
 
     def reward(self, reward):
-        return np.sign(reward)
+        return bool(reward > 0) - bool(reward < 0)
 
 
 class StackFrameEnv(gym.Wrapper):

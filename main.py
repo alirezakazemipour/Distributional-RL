@@ -1,6 +1,9 @@
-from common import set_random_seeds, get_common_configs
-from common import make_atari
+# Reference: https://github.com/ku2482/fqf-iqn-qrdqn.pytorch
+
+from common import set_random_seeds, get_common_configs, make_atari
+from common import Logger
 from agents import get_agent_configs, get_agent
+import os
 
 if __name__ == "__main__":
     configs = get_common_configs()
@@ -8,6 +11,12 @@ if __name__ == "__main__":
 
     configs = get_agent_configs(**configs)
     print("params:", configs)
+
+    if os.path.exists("api_key.wandb"):
+        with open("api_key.wandb", 'r') as f:
+            os.environ["WANDB_API_KEY"] = f.read()
+            if not configs["online_wandb"]:
+                os.environ["WANDB_MODE"] = "offline"
 
     test_env = make_atari(configs["env_name"], configs["seed"])
     configs.update({"n_actions": test_env.action_space.n})
@@ -17,21 +26,24 @@ if __name__ == "__main__":
 
     env = make_atari(configs["env_name"], configs["seed"])
     agent = get_agent(**configs)
-    # TODO: logger = Logger()
+    logger = Logger(agent=agent, **configs)
 
     if not configs["do_test"]:
         total_steps = 0
         for episode in range(configs["max_episodes"]):
+            logger.on()
             episode_reward = 0
-            episode_len = 0
+            episode_loss = 0
             state = env.reset()
             for step in range(env.spec.max_episode_steps):
                 total_steps += 1
                 action = agent.choose_action(state)
                 next_state, reward, done, _ = env.step(action)
                 agent.store(state, reward, done, action, next_state)
+                episode_reward += reward
                 if total_steps % configs["train_interval"] == 0:
-                    agent.train()
+                    loss = agent.train()
+                    episode_loss += loss
                 if total_steps % configs["target_update_freq"]:
                     agent.hard_target_update()
                 if done:
@@ -40,3 +52,12 @@ if __name__ == "__main__":
 
             agent.exp_eps = agent.exp_eps - 0.01 if agent.exp_eps > configs["min_exp_eps"] + 0.01 else configs[
                 "min_exp_eps"]
+
+            logger.off()
+            logger.log(episode,
+                       episode_reward,
+                       episode_loss / step * configs["train_interval"],
+                       total_steps,
+                       step
+                       )
+            logger.on()

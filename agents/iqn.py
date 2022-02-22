@@ -70,7 +70,7 @@ class IQN:
 
     def train(self):
         if len(self.memory) < self.configs["init_mem_size_to_train"]:
-            return
+            return 0
         batch = self.memory.sample(self.batch_size)
         states, actions, rewards, next_states, dones = self.unpack_batch(batch)
 

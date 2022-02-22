@@ -1,4 +1,7 @@
 .idea/
+api_key.wandb
+Weights/
+wandb/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

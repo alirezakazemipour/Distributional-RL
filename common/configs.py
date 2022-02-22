@@ -14,6 +14,7 @@ def get_common_configs():
                              " counted by episodes.")
     parser.add_argument("--do_test", action="store_true",
                         help="The flag determines whether to train the agent or play with it.")
+    parser.add_argument("--online_wandb", action="store_true", help="Run wandb in online mode.")
     parser_params = parser.parse_args()
 
     common_params = {"state_shape": (4, 84, 84),

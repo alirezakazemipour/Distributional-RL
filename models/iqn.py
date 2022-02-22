@@ -51,7 +51,9 @@ class IQNModel(nn.Module, ABC):
         x = torch.cos(i_pi * taus).view(-1, self.num_embedding)
         phi = F.relu(self.phi(x))
 
-        x = F.relu(self.fc(state_feats * phi))
+        x = state_feats.view(state_feats.size(0), 1, -1) * phi.view(inputs.size(0), taus.size(1), -1)
+        x = x.view(-1, phi.size(-1))
+        x = F.relu(self.fc(x))
         z = self.z(x)
         return z.view(inputs.size(0), taus.size(1), -1)
 

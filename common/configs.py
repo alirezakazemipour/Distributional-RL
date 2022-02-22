@@ -18,6 +18,9 @@ def get_common_configs():
 
     common_params = {"state_shape": (4, 84, 84),
                      "gamma": 0.99,
+                     "train_interval": 4,
+                     "target_update_freq": 8000,
+                     "init_mem_size_to_train": 1000,
                      "max_episodes": int(1e+4)
                      }
     # endregion

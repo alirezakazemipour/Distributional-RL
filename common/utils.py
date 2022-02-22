@@ -9,3 +9,10 @@ def set_random_seeds(seed):
     np.random.seed(seed)
     random.seed(seed)
     torch.random.manual_seed(seed)
+
+
+def huber_loss(x, kappa):
+    return torch.where(torch.abs(x) < kappa,
+                       0.5 * x ** 2,
+                       kappa * (torch.abs(x) - 0.5 * kappa)
+                       )

@@ -16,11 +16,13 @@ class IQN:
         self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         self.online_model = IQNModel(configs["state_shape"],
                                      configs["n_actions"],
-                                     configs["n_embedding"]
+                                     configs["n_embedding"],
+                                     self.configs["K"]
                                      ).to(self.device)
         self.target_model = IQNModel(configs["state_shape"],
                                      configs["n_actions"],
-                                     configs["n_embedding"]
+                                     configs["n_embedding"],
+                                     self.configs["K"]
                                      ).to(self.device)
         self.hard_target_update()
         self.optimizer = torch.optim.Adam(self.online_model.parameters(),
@@ -34,9 +36,8 @@ class IQN:
         else:
             state = np.expand_dims(state, axis=0)
             state = from_numpy(state).byte().to(self.device)
-            taus = torch.rand((1, self.configs["K"]), device=self.device)
             with torch.no_grad():
-                q_values = self.online_model.get_qvalues(state, taus).cpu()
+                q_values = self.online_model.get_qvalues(state).cpu()
             return torch.argmax(q_values, -1).item()
 
     def store(self, state, reward, done, action, next_state):
@@ -60,7 +61,7 @@ class IQN:
         actions = from_numpy(np.stack(batch.action)).to(self.device)
         rewards = from_numpy(np.stack(batch.reward)).view(-1, 1).to(self.device)
         next_states = from_numpy(np.stack(batch.next_state)).to(self.device)
-        dones = from_numpy(np.stack(batch.done)).view(-1, 1).to(self.device)
+        dones = from_numpy(np.stack(batch.done)).view(-1, 1).to(self.device) # noqa
         return states, actions, rewards, next_states, dones
 
     def hard_target_update(self):
@@ -72,13 +73,12 @@ class IQN:
         if len(self.memory) < self.configs["init_mem_size_to_train"]:
             return 0
         batch = self.memory.sample(self.batch_size)
-        states, actions, rewards, next_states, dones = self.unpack_batch(batch)
+        states, actions, rewards, next_states, dones = self.unpack_batch(batch) # noqa
 
         with torch.no_grad():
             tau_primes = torch.rand((self.batch_size, self.configs["N_prime"]), device=self.device)
             next_z = self.target_model(next_states, tau_primes)
-            tau_primes = torch.rand((self.batch_size, self.configs["K"]), device=self.device)
-            next_qvalues = self.online_model.get_qvalues(next_states, tau_primes)
+            next_qvalues = self.target_model.get_qvalues(next_states)
             next_actions = torch.argmax(next_qvalues, dim=-1)
             next_actions = next_actions[..., None, None].expand(self.batch_size, self.configs["N_prime"], 1)
             next_z = next_z.gather(dim=-1, index=next_actions).squeeze(-1)
@@ -87,9 +87,9 @@ class IQN:
         taus = torch.rand((self.batch_size, self.configs["N"]), device=self.device)
         z = self.online_model(states, taus)
         actions = actions[..., None, None].expand(self.batch_size, self.configs["N"], 1).long()
-        z = z.gather(dim=-1, index=actions).squeeze(-1)
+        z = z.gather(dim=-1, index=actions)
 
-        delta = target_z.view(target_z.size(0), 1, target_z.size(-1)) - z.unsqueeze(-1)
+        delta = target_z.view(target_z.size(0), 1, target_z.size(-1)) - z
         hloss = huber_loss(delta, self.configs["kappa"])
         rho = torch.abs(taus[..., None] - (delta.detach() < 0).float()) * hloss / self.configs["kappa"]
         loss = rho.sum(1).mean(1).mean()  # sum over N -> mean over N_prime -> mean over batch
@@ -99,6 +99,9 @@ class IQN:
         self.optimizer.step()
 
         return loss.item()
+
+    def prepare_to_play(self):
+        self.online_model.eval()
 
     @staticmethod
     def get_configs():

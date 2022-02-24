@@ -2,6 +2,7 @@
 api_key.wandb
 Weights/
 wandb/
+Vid/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,7 +1,7 @@
 # Reference: https://github.com/ku2482/fqf-iqn-qrdqn.pytorch
 
 from common import set_random_seeds, get_common_configs, make_atari
-from common import Logger
+from common import Logger, Evaluator
 from agents import get_agent_configs, get_agent
 import os
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
             episode_loss = 0
             state = env.reset()
             for step in range(1, 1 + env.spec.max_episode_steps):
-                total_steps += 1
+                total_steps += 4  # 4: MaxAndSkip env!
                 action = agent.choose_action(state)
                 next_state, reward, done, _ = env.step(action)
                 agent.store(state, reward, done, action, next_state)
@@ -60,4 +60,9 @@ if __name__ == "__main__":
                        total_steps,
                        step
                        )
-            logger.on()
+    else:
+        checkpoint = logger.load_weights()
+        agent.online_model.load_state_dict(checkpoint["online_model_state_dict"])
+        agent.exp_eps = 0
+        evaluator = Evaluator(agent, **configs)
+        evaluator.evaluate()

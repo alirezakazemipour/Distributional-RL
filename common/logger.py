@@ -31,7 +31,7 @@ class Logger:
                    job_type="train",
                    name=self.log_dir
                    )
-        wandb.watch(agent.online_model)
+        # wandb.watch(agent.online_model)
         if not self.config["do_test"]:
             self.create_wights_folder(self.log_dir)
 

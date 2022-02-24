@@ -6,9 +6,10 @@ import math
 
 
 class IQNModel(nn.Module, ABC):
-    def __init__(self, state_shape, num_actions, num_embedding):
+    def __init__(self, state_shape, num_actions, num_embedding, k):
         super(IQNModel, self).__init__()
         self.num_embedding = num_embedding
+        self.k = k
         c, w, h = state_shape
         self.conv1 = nn.Conv2d(c, 32, (8, 8), (4, 4))
         self.conv2 = nn.Conv2d(32, 64, (4, 4), (2, 2))
@@ -46,7 +47,7 @@ class IQNModel(nn.Module, ABC):
         state_feats = x.view(x.size(0), -1)
 
         #  view(...) for broadcasting later when it multiplies to taus
-        i_pi = math.pi * torch.arange(self.num_embedding, device=taus.device).view(1, 1, self.num_embedding)
+        i_pi = math.pi * torch.arange(1, 1 + self.num_embedding, device=taus.device).view(1, 1, self.num_embedding)
         taus = torch.unsqueeze(taus, -1)
         x = torch.cos(i_pi * taus).view(-1, self.num_embedding)
         phi = F.relu(self.phi(x))
@@ -57,8 +58,9 @@ class IQNModel(nn.Module, ABC):
         z = self.z(x)
         return z.view(inputs.size(0), taus.size(1), -1)
 
-    def get_qvalues(self, x, taus):
-        z = self.forward(x, taus)
+    def get_qvalues(self, x):
+        tau_tildas = torch.rand((x.size(0), self.k), device=x.device)
+        z = self.forward(x, tau_tildas)
         q_values = torch.mean(z, dim=1)
         return q_values
 

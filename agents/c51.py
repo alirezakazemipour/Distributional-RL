@@ -44,7 +44,7 @@ class C51(BaseAgent):
             next_actions = torch.argmax(next_qvalues, dim=-1)
             next_actions = next_actions[..., None, None].expand(self.batch_size, 1, self.n_atoms)
             next_chosen_dist = next_dist.gather(dim=1, index=next_actions).squeeze(1)
-            target_dist = rewards + self.configs["gamma"] * (~dones) * next_chosen_dist
+            target_dist = rewards + self.configs["gamma"] * (~dones) * self.atoms
             target_dist.clamp_(self.v_min, self.v_max)
             b = (target_dist - self.v_min) / self.delta_z
             l = b.floor().long()

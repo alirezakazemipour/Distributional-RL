@@ -31,7 +31,6 @@ class IQN(BaseAgent):
 
         with torch.no_grad():
             tau_primes = torch.rand((self.batch_size, self.configs["N_prime"]), device=self.device)
-            # next 2 lines can be done more efficiently in a single forward pass!
             next_z = self.target_model((next_states, tau_primes))
             next_qvalues = self.target_model.get_qvalues(next_states)
             next_actions = torch.argmax(next_qvalues, dim=-1)
@@ -58,9 +57,8 @@ class IQN(BaseAgent):
     @staticmethod
     def get_configs():
         configs = {"n_embedding": 64,
-                   "min_exp_eps": 0.01,
                    "kappa": 1,
-                   "N": 32,  # 8 or 32 are acceptable too
+                   "N": 64,  # 8 or 32 are acceptable too
                    "N_prime": 64,  # 8 or 32 are acceptable too
                    "K": 32,
                    "lr": 5e-5

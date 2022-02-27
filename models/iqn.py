@@ -22,9 +22,7 @@ class IQNModel(BaseModel):
     def forward(self, inputs):
         states, taus = inputs
         x = states / 255
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
+        x = self.conv_net(x)
         state_feats = x.view(x.size(0), -1)
 
         #  view(...) for broadcasting later when it multiplies to taus

@@ -1,9 +1,10 @@
+from abc import ABC
 from torch import nn
 from torch.nn import functional as F
 from .base_model import BaseModel
 
 
-class C51Model(BaseModel):
+class C51Model(BaseModel, ABC):
     def __init__(self, state_shape, num_actions, num_atoms, atoms):
         super(C51Model, self).__init__(state_shape)
         self.num_actions = num_actions
@@ -16,9 +17,7 @@ class C51Model(BaseModel):
 
     def forward(self, inputs):
         x = inputs / 255
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
+        x = self.conv_net(x)
         x = x.view(x.size(0), -1)
         x = F.relu(self.fc(x))
         logits = self.logits(x)

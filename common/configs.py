@@ -3,7 +3,7 @@ import argparse
 
 def get_common_configs():
     parser = argparse.ArgumentParser("Choose your desired parameters")
-    parser.add_argument("--agent_name", type=str, default="C51", help="Distributional method name")
+    parser.add_argument("--agent_name", type=str, default="IQN", help="Distributional method name")
     parser.add_argument("--env_name", default="PongNoFrameskip-v4", type=str, help="Name of the environment.")
     parser.add_argument("--mem_size", default=330000, type=int, help="The memory size.")
     parser.add_argument("--batch_size", default=32, type=int, help="The batch size.")

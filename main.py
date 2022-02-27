@@ -50,7 +50,7 @@ if __name__ == "__main__":
                     break
                 state = next_state
 
-            agent.exp_eps = agent.exp_eps - 0.01 if agent.exp_eps > configs["min_exp_eps"] + 0.01 else configs[
+            agent.exp_eps = agent.exp_eps - 0.005 if agent.exp_eps > configs["min_exp_eps"] + 0.005 else configs[
                 "min_exp_eps"]
 
             logger.off()

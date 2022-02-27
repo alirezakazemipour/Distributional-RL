@@ -99,7 +99,8 @@ class Logger:
                    "Moving last 10 episode rewards": last_10_ep_rewards,
                    "Running Loss": self.running_loss,
                    "episode": episode,
-                   "episode length": e_len
+                   "episode length": e_len,
+                   "total steps": step
                    }
 
         if self.thread.is_alive():

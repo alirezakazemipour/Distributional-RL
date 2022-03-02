@@ -7,7 +7,7 @@ import time
 class Evaluator:
     def __init__(self, agent, max_episode=1, **config):
         self.config = config
-        self.env = make_atari(self.config["env_name"], episodic_life=True, seed=int(time.time()))
+        self.env = make_atari(self.config["env_name"], episodic_life=False, clip_reward=False, seed=int(time.time()))
         self.env = gym.wrappers.Monitor(self.env, "./Vid", video_callable=lambda episode_id: True, force=True)
         self.max_episode = max_episode
         self.agent = agent

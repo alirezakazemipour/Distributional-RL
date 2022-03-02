@@ -27,7 +27,7 @@ class IQN(BaseAgent):
         if len(self.memory) < self.configs["init_mem_size_to_train"]:
             return 0
         batch = self.memory.sample(self.batch_size)
-        states, actions, rewards, next_states, dones = self.unpack_batch(batch) # noqa
+        states, actions, rewards, next_states, dones = self.unpack_batch(batch)  # noqa
 
         with torch.no_grad():
             tau_primes = torch.rand((self.batch_size, self.configs["N_prime"]), device=self.device)
@@ -58,8 +58,10 @@ class IQN(BaseAgent):
     def get_configs():
         configs = {"n_embedding": 64,
                    "kappa": 1,
-                   "N": 64,  # 8 or 32 are acceptable too
-                   "N_prime": 64,  # 8 or 32 are acceptable too
+                   # N = 64 if earlier phases of training is considered, 32 if final phases is preferable.
+                   # according to Fig 2 of the paper.
+                   "N": 64,
+                   "N_prime": 64,
                    "K": 32,
                    "lr": 5e-5
                    }

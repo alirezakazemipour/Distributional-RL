@@ -6,6 +6,7 @@ import numpy as np
 
 def make_atari(env_name: str,
                episodic_life: bool = True,
+               clip_reward: bool = True,
                seed: int = 123
                ):
     env = gym.make(env_name)
@@ -18,7 +19,8 @@ def make_atari(env_name: str,
     if 'FIRE' in env.unwrapped.get_action_meanings():
         env = FireResetEnv(env)
     env = ResizedAndGrayscaleEnv(env)
-    env = ClipRewardEnv(env)
+    if clip_reward:
+        env = ClipRewardEnv(env)
     env = StackFrameEnv(env)
 
     env.seed(seed)

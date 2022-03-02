@@ -3,10 +3,9 @@ import argparse
 
 def get_common_configs():
     parser = argparse.ArgumentParser("Choose your desired parameters")
-    parser.add_argument("--agent_name", type=str, default="IQN", help="Distributional method name")
+    parser.add_argument("--agent_name", type=str, default="QRDQN", help="Distributional method name")
     parser.add_argument("--env_name", default="PongNoFrameskip-v4", type=str, help="Name of the environment.")
     parser.add_argument("--mem_size", default=330000, type=int, help="The memory size.")
-    parser.add_argument("--batch_size", default=32, type=int, help="The batch size.")
     parser.add_argument("--seed", default=132, type=int, help="The random seed.")
     parser.add_argument("--interval", default=10, type=int,
                         help="The interval specifies how often different parameters should be saved and printed,"
@@ -24,6 +23,7 @@ def get_common_configs():
                      "max_episodes": int(1e+4),
                      "adam_eps": 0.01 / 32,
                      "min_exp_eps": 0.01,
+                     "batch_size": 32
                      }
     # endregion
     total_params = {**vars(parser_params), **common_params}

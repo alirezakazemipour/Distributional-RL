@@ -37,9 +37,9 @@ class Logger:
 
     @staticmethod
     def create_wights_folder(dir):
-        if not os.path.exists("Weights"):
-            os.mkdir("Weights")
-        os.mkdir("Weights/" + dir)
+        if not os.path.exists("weights"):
+            os.mkdir("weights")
+        os.mkdir("weights/" + dir)
 
     def on(self):
         self.start_time = time.time()
@@ -114,10 +114,10 @@ class Logger:
 
     def save_weights(self):
         torch.save({"online_model_state_dict": self.agent.online_model.state_dict()},
-                   "Weights/" + self.log_dir + "/params.pth")
+                   "weights/" + self.log_dir + "/params.pth")
 
     def load_weights(self):
-        model_dir = glob.glob("Weights/*")
+        model_dir = glob.glob("weights/*")
         model_dir.sort()
         checkpoint = torch.load(model_dir[-1] + "/params.pth")
         self.log_dir = model_dir[-1].split(os.sep)[-1]

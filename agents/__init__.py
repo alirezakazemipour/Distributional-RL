@@ -1,8 +1,10 @@
 from .iqn import IQN
-from.c51 import C51
+from .c51 import C51
+from .qrdqn import QRDQN
 
 AGENTS = dict(IQN=IQN,
-              C51=C51
+              C51=C51,
+              QRDQN=QRDQN
               )
 
 

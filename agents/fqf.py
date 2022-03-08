@@ -33,17 +33,18 @@ class FQF(BaseAgent):
         batch = self.memory.sample(self.batch_size)
         states, actions, rewards, next_states, dones = self.unpack_batch(batch)  # noqa
 
-        z, taus, tau_hats = self.online_model(states)
-        a = actions[..., None, None].expand(self.batch_size, self.configs["N"], 1).long()
-        z = z.gather(dim=-1, index=a)
-
+        taus, tau_hats, ent = self.online_model.get_taus(states)
         with torch.no_grad():
-            next_z, *_ = self.target_model(next_states, taus=tau_hats.detach())
+            next_z = self.target_model((next_states, tau_hats))
             next_qvalues = self.target_model.get_qvalues(next_states)
             next_actions = torch.argmax(next_qvalues, dim=-1)
             next_actions = next_actions[..., None, None].expand(self.batch_size, self.configs["N"], 1)
             next_z = next_z.gather(dim=-1, index=next_actions).squeeze(-1)
             target_z = rewards + self.configs["gamma"] * (~dones) * next_z
+
+        z = self.online_model((states, tau_hats.detach()))
+        a = actions[..., None, None].expand(self.batch_size, self.configs["N"], 1).long()
+        z = z.gather(dim=-1, index=a)
 
         delta = target_z.view(target_z.size(0), 1, target_z.size(-1)) - z
         hloss = huber_loss(delta, self.configs["kappa"])
@@ -55,14 +56,18 @@ class FQF(BaseAgent):
         self.optimizer.step()
 
         with torch.no_grad():
-            est_z, *_ = self.online_model(states, use_tau_hats=False)
-        a = actions[..., None, None].expand(self.batch_size, self.configs["N"] + 1, 1).long()
-        est_z = est_z.gather(dim=-1, index=a)
-        fp_grads = 2 * est_z[:, 1:-1] - z[:, 1:].detach() - z[:, :-1].detach()
+            z = self.online_model((states, taus[:, 1:-1]))
+            z_hat = self.online_model((states, tau_hats[:, 1:]))
+            z_hat_1 = self.online_model((states, tau_hats[:, :-1]))
+            a = actions[..., None, None].expand(self.batch_size, self.configs["N"] - 1, 1).long()
+            z = z.gather(dim=-1, index=a)
+            z_hat = z_hat.gather(dim=-1, index=a)
+            z_hat_1 = z_hat_1.gather(dim=-1, index=a)
+            fp_grads = 2 * z - z_hat - z_hat_1
 
-        taus = taus[:, 1:-1]
+        fp_loss = (taus[:, 1:-1] * fp_grads.squeeze(-1)).sum(-1).mean(0)
         self.fp_optimizer.zero_grad()
-        taus.backward(fp_grads.squeeze(-1))
+        fp_loss.backward()
         self.fp_optimizer.step()
 
         return loss.item()

@@ -21,18 +21,11 @@ class FQFModel(BaseModel):
         nn.init.orthogonal_(self.phi.weight, gain=nn.init.calculate_gain("relu"))
         self.phi.bias.data.zero_()
 
-    def forward(self, inputs, taus=None, use_tau_hats=True):
-        states = inputs
+    def forward(self, inputs):
+        states, taus = inputs
         x = states / 255
         x = self.conv_net(x)
         state_feats = x.view(x.size(0), -1)
-
-        orig_taus, tau_hats, ent = self.fp_layer(state_feats)
-        if taus is None:
-            if use_tau_hats:
-                taus = tau_hats.detach()
-            else:
-                taus = orig_taus.detach()
 
         #  view(...) for broadcasting later when it multiplies to taus
         i_pi = math.pi * torch.arange(1, 1 + self.num_embedding, device=taus.device).view(1, 1, self.num_embedding)
@@ -45,12 +38,20 @@ class FQFModel(BaseModel):
         x = F.relu(self.fc(x))
         z = self.z(x)
 
-        return z.view(states.size(0), taus.size(1), -1), orig_taus, tau_hats
+        return z.view(states.size(0), taus.size(1), -1)
 
     def get_qvalues(self, x):
-        z, taus, _ = self.forward(x)
+        taus, tau_hats, _ = self.get_taus(x)
+        z = self.forward((x, tau_hats))
         q_values = torch.sum((taus[:, 1:, None] - taus[:, :-1, None]) * z, dim=1)
         return q_values
+
+    def get_taus(self, x):
+        with torch.no_grad():
+            x = x / 255
+            x = self.conv_net(x)
+            state_feats = x.view(x.size(0), -1)
+        return self.fp_layer(state_feats)
 
 
 class FractionProposalModel(nn.Module):
@@ -64,7 +65,6 @@ class FractionProposalModel(nn.Module):
         self.layer.bias.data.zero_()
 
     def forward(self, x):
-        x = x.detach()
         x = self.layer(x)
         x = F.softmax(x, dim=-1)
         ent = -torch.sum(x * torch.log(x), dim=-1)

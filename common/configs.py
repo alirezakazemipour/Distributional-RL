@@ -14,6 +14,7 @@ def get_common_configs():
                         help="The flag determines whether to train the agent or play with it.")
     parser.add_argument("--online_wandb", action="store_true", help="Run wandb in online mode.")
     parser_params = parser.parse_args()
+    parser_params.agent_name = parser_params.agent_name.upper()  # agent_name should be in capital letters.
 
     common_params = {"state_shape": (4, 84, 84),
                      "gamma": 0.99,

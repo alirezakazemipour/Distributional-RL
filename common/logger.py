@@ -68,7 +68,7 @@ class Logger:
             last_10_ep_rewards = 0  # It is not correct but does not matter.
 
         memory = psutil.virtual_memory()
-        assert self.to_gb(memory.used) < 0.98 * self.to_gb(memory.total)
+        assert self.to_gb(memory.used) < 0.99 * self.to_gb(memory.total)
 
         if episode % (self.config["interval"] // 3) == 0:
             self.save_weights()

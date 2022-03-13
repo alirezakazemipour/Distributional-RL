@@ -62,7 +62,7 @@ optional arguments:
 > common/logger.py:
 ```python
 def load_weights(self):
-	model_dir = glob.glob("weights/*")
+    model_dir = glob.glob("weights/*")
     model_dir.sort()
     # model_dir[-1] -> means latest run!
     checkpoint = torch.load(model_dir[-1] + "/params.pth")

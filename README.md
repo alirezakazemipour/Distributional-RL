@@ -1,7 +1,7 @@
 # Distributional-RL
 This repository is a comprehensive implementation of the state-of-the-art Deep Distributional Reinforcement Learning Algorithms that have been introduced as a series of improvements upon each other and are mainly focused on the Atari benchmark.  
-Included algorithms **via a single API**:
 
+Included algorithms **via a single API**:
 - C51 (Categorical DQN)
 - IQN (Implicit Quantile Networks)
 - QRDQN (Quantile Regression DQN)

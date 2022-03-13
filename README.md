@@ -16,6 +16,7 @@ Included algorithms **via a single API**:
 <p align="center">
   <img src="results/result.png" >
 </p>  
+
 - As it's been highlighted in the part 4 of the FQF paper, FQF algorithm is roughly 20% slower (in terms of runtime speed) than other methods thus, to have a comparable baseline of each method's performance against others, I have plotted the performance metrics with respect to the processing time rather than steps taken by the agent in the environment.
 - The runtime was bounded to 6 hours available for free-gpu-equipped machines in the [paperspace.com](https://paperspace.com/) as the host of running the current code.
 

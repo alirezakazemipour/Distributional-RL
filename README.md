@@ -1,3 +1,4 @@
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com) 
 # Distributional-RL
 This repository is a comprehensive implementation of the state-of-the-art Deep Distributional Reinforcement Learning Algorithms that have been introduced as a series of improvements upon each other and are mainly focused on the Atari benchmark.  
 
@@ -7,12 +8,14 @@ Included algorithms **via a single API**:
 - QRDQN (Quantile Regression DQN)
 - FQF (Fully parameterized Quantile Function)
 
-## Demo (IQN Agent)
+## Demo
+> IQN Agent:
 <p align="center">
   <img src="results/demo.gif" >
 </p>  
 
 ## Results
+> Environment: AssaultNoFrameskip-v4
 <p align="center">
   <img src="results/result.png" >
 </p>  
@@ -53,7 +56,19 @@ optional arguments:
                         with it.
   --online_wandb        Run wandb in online mode.
 ```
+###  Considerations
 - Accepted values for `agent_name`: {`"C51"`,` "IQN"`, `"FQF"` and `"QRDQN"`}.
+- At the time of testing, the code by default uses the weights of the latest run available in _`weights`_ folder so, please bear in mind to put your desired weights in the appropriate folder inside the _`weights`_ directory! 👇
+> common/logger.py:
+```python
+def load_weights(self):
+	model_dir = glob.glob("weights/*")
+    model_dir.sort()
+    # model_dir[-1] -> means latest run!
+    checkpoint = torch.load(model_dir[-1] + "/params.pth")
+    self.log_dir = model_dir[-1].split(os.sep)[-1]
+    return checkpoint
+```
 
 ## References
 1. [_A Distributional Perspective on Reinforcement Learning_, Bellemare, et al., 2017](https://arxiv.org/abs/1707.06887)

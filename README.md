@@ -78,7 +78,7 @@ def load_weights(self):
 5. [_Distributional Reinforcement Learning (draft)_, Bellemare et al., 2022](https://www.distributional-rl.org/)
 
 ## Acknowledgement
-Following repositories were great guides to implement distributional rl ideas. Big thanks to them for their works:
+Following repositories were great guides to implement distributional rl ideas. Big thanks to them for their work:
 1. [DeepRL_PyTorch](https://github.com/Kchu/DeepRL_PyTorch) by [@Kchu](https://github.com/Kchu)
 2. [FQF](https://github.com/microsoft/FQF) by [@microsoft](https://github.com/microsoft)
 3. [fqf-iqn-qrdqn.pytorch](https://github.com/ku2482/fqf-iqn-qrdqn.pytorch) by [@ku2482](https://github.com/ku2482)
